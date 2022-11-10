@@ -1,0 +1,10 @@
+name: eelib-dev
+channels:
+  - defaults
+dependencies:
+  - earthengine-api
+  - geopandas
+  - pre-commit
+  - autopep8
+  - python=3.10
+prefix: /home/hammy97/miniconda3/envs/eelib-dev
