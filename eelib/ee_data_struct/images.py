@@ -6,12 +6,6 @@ class _eeImages(ee.ImageCollection):
     def __init__(self, args):
         super().__init__(args)
 
-    def to_dataframe(self) -> gpd.GeoDataFrame:
-        raise NotImplementedError
-
-    def to_feature_collection(self) -> ee.FeatureCollection:
-        raise NotImplementedError
-
 
 class S1(_eeImages):
     __COLLECTION_ID = "COPERNICUS/S1_GRD"
