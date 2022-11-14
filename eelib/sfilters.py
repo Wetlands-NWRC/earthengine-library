@@ -10,7 +10,7 @@ class Boxcar:
 
         Args:
             radius (float): _description_
-            units (str, optional): _description_. Defaults to None.
+            units (str, optional): _description_. Defaults to pixels.
             normalize (bool, optional): _description_. Defaults to True.
             magnitude (float, optional): _description_. Defaults to 1.0.
         """
