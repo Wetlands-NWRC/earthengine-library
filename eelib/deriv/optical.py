@@ -60,7 +60,7 @@ class TasselCap:
         green = 'B3' if green is None else green
         nir = 'B8' if nir is None else nir
         swir_1 = 'B11'if swir_1 is None else swir_1
-        swir_1 = 'B12'if swir_2 is None else swir_2
+        swir_2 = 'B12'if swir_2 is None else swir_2
 
         image = image.select([
             blue, red, green, nir, swir_1, swir_2
