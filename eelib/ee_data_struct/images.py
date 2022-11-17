@@ -26,3 +26,13 @@ class S2SR(_eeImages):
 
     def __init__(self):
         super().__init__(self.__COLLECTION_ID)
+
+
+class Stack:
+    def __new__(cls, *images) -> ee.Image:
+        """Constructs a New Image. Stacks all images together
+
+        Returns:
+            ee.Image: an Image that Represents a Stack of images
+        """
+        return ee.Image.cat(images)
