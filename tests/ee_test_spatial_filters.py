@@ -3,13 +3,13 @@ from pprint import pprint
 
 import ee
 
-from eelib import sfilters
+from eelib import sf
 
 
 class TestEESpatialFilters(unittest.TestCase):
 
     def test_boxcar_filter_construction(self):
-        eeBoxcar = sfilters.Boxcar(1)
+        eeBoxcar = sf.Boxcar(1)
 
         try:
             pprint(eeBoxcar.getInfo())
