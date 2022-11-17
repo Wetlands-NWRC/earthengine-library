@@ -1,5 +1,5 @@
 from abc import ABC
-from typing import List
+from typing import List, Union
 
 import ee
 
@@ -10,21 +10,34 @@ class TrainingSample(ABC):
 
 class TrainingPointSamples(TrainingSample):
 
-    def __new__(cls, image: ee.Image, collection: ee.FeatureCollection,
-                properties: List[str], scale: float = None,
-                projection: ee.Projection = None, tile_scale: float = 1,
-                geometries: bool = False) -> ee.FeatureCollection:
+    def __init__(self, image: ee.Image, collection: ee.FeatureCollection,
+                 properties: List[str] = None, scale: float = None,
+                 projection: ee.Projection = None, tile_scale: float = 1,
+                 geometries: bool = False):
+        test_geometry_type = collection.geometry().type().getInfo()
+        if test_geometry_type != 'MultiPoint':
+            raise ee.EEException("Collection is not of type MultiPoint")
 
-        if not isinstance(collection.geometry(), ee.Geometry.MultiPoint):
-            raise ee.EEException("Collection is not of type Multi point")
+        self._image = image
+        self._collection = collection
+        self._properties = properties
+        self._scale = scale
+        self._projection = projection
+        self._tile_scale = tile_scale
+        self._geometries = geometries
 
-        training_samples = image.sampleRegions(**{
-            'collection': collection,
-            'properties': properties,
-            'scale': scale,
-            'projection': projection,
-            'tileScale': tile_scale,
-            'geometries': geometries
+        self._training_samples = None
+
+    def sample(self) -> None:
+        self._training_samples = self._image.sampleRegions(**{
+            'collection': self._collection,
+            'properties': self._properties,
+            'scale': self._scale,
+            'projection': self._projection,
+            'tileScale': self._tile_scale,
+            'geometries': self._geometries
         })
+        return None
 
-        return training_samples
+    def get_trianing_samples(self) -> Union[None, ee.FeatureCollection]:
+        return self._training_samples
