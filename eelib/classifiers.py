@@ -42,6 +42,12 @@ class RandomForest:
 
     @output_mode.setter
     def output_mode(self, mode: str):
+        valid_modes = ['REGRESSION', 'PROBABILITY']
+        to_upper = mode.upper()
+
+        if to_upper not in valid_modes:
+            raise Exception(f"{to_upper}: is not a valid mode")
+
         self._output_mode = mode
 
     def train(self, featues: ee.FeatureCollection, class_label: str,
