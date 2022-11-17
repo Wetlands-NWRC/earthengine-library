@@ -23,7 +23,3 @@ class TrainingPointSamples:
         })
 
         return training_samples
-
-    @classmethod
-    def from_file(filename):
-        pass
