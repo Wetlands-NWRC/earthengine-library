@@ -3,6 +3,7 @@ import unittest
 import ee
 
 from eelib.deriv import optical as opt
+from eelib.deriv import sar
 from eelib.ee_data_struct import images as i
 
 
@@ -44,9 +45,26 @@ class TestOpticalDerriv(unittest.TestCase):
 
 
 class TestSARDeriv(unittest.TestCase):
+    xy = [-77.30685465171965, 44.03884259332009]
+    point = ee.Geometry.Point(xy)
+
+    test_sar_collection = i.S1().\
+        filterBounds(point).\
+        filterDate('2018-04-01', '2018-10-31').\
+        first()
 
     def test_ratio_band_creation(self):
-        pass
+        ratio_band = sar.Ratio(
+            image=self.test_sar_collection,
+            numerator='VV',
+            denominator='VH'
+        )
+
+        try:
+            ratio_band.getInfo()
+        except Exception as e:
+            print(e)
+            self.fail("band not created")
 
 
 class TestElevationDeriv(unittest.TestCase):
