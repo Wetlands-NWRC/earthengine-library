@@ -1,9 +1,14 @@
+from abc import ABC
 from typing import List
 
 import ee
 
 
-class TrainingPointSamples:
+class TrainingSample(ABC):
+    pass
+
+
+class TrainingPointSamples(TrainingSample):
 
     def __new__(cls, image: ee.Image, collection: ee.FeatureCollection,
                 properties: List[str], scale: float = None,
