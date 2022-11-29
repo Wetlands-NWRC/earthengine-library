@@ -1,5 +1,7 @@
 from abc import ABC
+
 from pprint import pprint
+
 from typing import List, Union
 
 import ee
@@ -9,7 +11,9 @@ class TrainingSample(ABC):
     pass
 
 
+
 class TrainingSamples(TrainingSample):
+
 
     def __init__(self, image: ee.Image, collection: ee.FeatureCollection,
                  properties: List[str] = None, scale: float = None,
@@ -30,12 +34,7 @@ class TrainingSamples(TrainingSample):
         self._training_samples = None
 
         self._cfg = {
-            'collection': self._collection,
-            'properties': self._properties,
-            'scale': self._scale,
-            'projection': self._projection,
-            'tileScale': self._tile_scale,
-            'geometries': self._geometries
+    def sample(self) -> None:
         }
 
     def __repr__(self) -> str:
@@ -43,4 +42,3 @@ class TrainingSamples(TrainingSample):
 
     def generate_samples(self) -> ee.FeatureCollection:
         self._training_samples = self._image.sampleRegions(**self._cfg)
-        return self._training_samples
