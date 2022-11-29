@@ -31,25 +31,25 @@ class _eeImages(ee.ImageCollection):
         super().__init__(args)
 
 
-class S1(_eeImages):
+class S1Collection:
     __COLLECTION_ID = "COPERNICUS/S1_GRD"
 
-    def __init__(self):
-        super().__init__(self.__COLLECTION_ID)
+    def __new__(cls) -> _eeImages:
+        return _eeImages(cls.__COLLECTION_ID)
 
 
-class S2TOA(_eeImages):
+class S2TOACollection:
     __COLLECTION_ID = "COPERNICUS/S2_HARMONIZED"
 
-    def __init__(self):
-        super().__init__(self.__COLLECTION_ID)
+    def __new__(cls) -> _eeImages:
+        return _eeImages(cls.__COLLECTION_ID)
 
 
-class S2SR(_eeImages):
+class S2SRCollection:
     __COLLECTION_ID = "COPERNICUS/S2_SR_HARMONIZED"
 
-    def __init__(self):
-        super().__init__(self.__COLLECTION_ID)
+    def __new__(cls) -> _eeImages:
+        return _eeImages(cls.__COLLECTION_ID)
 
 
 class Stack:
