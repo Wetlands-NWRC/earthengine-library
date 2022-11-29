@@ -2,8 +2,7 @@ import unittest
 
 import ee
 
-from eelib.deriv import optical as opt
-from eelib.deriv import sar
+from eelib import deriv
 from eelib.ee_data_struct import images as i
 
 
@@ -17,7 +16,7 @@ class TestOpticalDerriv(unittest.TestCase):
         first()
 
     def test_savi_band_creation(self):
-        savi_band = opt.SAVI(self.test_opt_image)
+        savi_band = deriv.SAVI(self.test_opt_image)
 
         try:
             savi_band.getInfo()
@@ -26,7 +25,7 @@ class TestOpticalDerriv(unittest.TestCase):
             self.fail("band not created")
 
     def test_tassel_cap_band_creation(self):
-        tassel_cap_bands = opt.TasselCap(self.test_opt_image)
+        tassel_cap_bands = deriv.TasselCap(self.test_opt_image)
 
         try:
             tassel_cap_bands.getInfo()
@@ -35,7 +34,7 @@ class TestOpticalDerriv(unittest.TestCase):
             self.fail("band not created")
 
     def test_ndvi_band_creation(self):
-        ndvi_band = opt.NDVI(self.test_opt_image)
+        ndvi_band = deriv.NDVI(self.test_opt_image)
 
         try:
             ndvi_band.getInfo()

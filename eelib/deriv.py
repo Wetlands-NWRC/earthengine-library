@@ -1,6 +1,7 @@
 import ee
 
 
+# Optical Derivatives
 class NDVI:
 
     def __new__(cls, image: ee.Image, NIR: str = None, RED: str = None):
@@ -83,3 +84,29 @@ class TasselCap:
             arrayFlatten([['Brightness', 'Greenness', 'Wetness']])
 
         return components_image
+
+
+# SAR Derivatives
+class Ratio:
+
+    def __new__(cls, image: ee.Image, numerator: str, denominator: str):
+
+        exp = "x / y"
+        opt_map = {
+            'x': image.select(numerator),
+            'y': image.select(denominator)
+        }
+
+        derv = image.expression(
+            expression=exp,
+            opt_map=opt_map
+        )
+
+        return derv.rename('Ratio')
+
+
+# DEM Derivatives
+class Slope:
+
+    def __new__(cls, image: ee.Image, elevation: str) -> ee.Image:
+        return ee.Terrain.slope(image.select('elevation'))
