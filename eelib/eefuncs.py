@@ -57,5 +57,17 @@ def batch_co_register(images: List[ee.Image], max_offset: float,
     imgs.insert(0, ref_image)
     return imgs
 
+def batch_despeckle(images: List[ee.Image], filter: sf.Boxcar):
+    """applys a spatial filter to each image in the image list. Only works on
+    list of images. Not Image Collection. If using image collection use the 
+    eefuncs.despeckle function.
 
+    Args:
+        images (List[ee.Image]): _description_
+        filter (sf.Boxcar): _description_
+
+    Returns:
+        _type_: _description_
+    """    
+    return [despeckle(i, filter) for i in images]
     
