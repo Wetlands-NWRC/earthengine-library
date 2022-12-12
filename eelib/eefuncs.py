@@ -73,5 +73,14 @@ def batch_despeckle(images: List[ee.Image], filter: sf.Boxcar):
     return [despeckle(i, filter) for i in images]
 
 
-def batch_create_ratio(images: List[ee.Image], numerator: str, denominator: str) -> List[ee.Image]:
+def batch_create_ratio(images: List[ee.Image], numerator: str, denominator: str) -> List[deriv.Ratio]:
     return [deriv.Ratio(img, numerator, denominator) for img in images]
+
+
+def batch_create_ndvi(images: List[ee.Image], nir: str = None, red: str = None) -> List[deriv.NDVI]:
+    return [deriv.NDVI(img, NIR=nir, RED=red) for img in images]
+
+
+def batch_create_savi(images: List[ee.Image], nir: str = None, red: str = None,
+                      coef: float = 0.5) -> List[deriv.SAVI]:
+    return [deriv.SAVI(image=img, NIR=nir, RED=red, coef=coef) for img in images]
