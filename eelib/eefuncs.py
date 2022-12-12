@@ -1,4 +1,4 @@
-from typing import Union
+from typing import List, Union
 
 import ee
 
@@ -37,3 +37,25 @@ def despeckle(images: Union[ee.ImageCollection, ee.Image], filter: sf.Boxcar):
 
     else:
         return images.convolve(filter)
+
+
+def batch_co_register(images: List[ee.Image], max_offset: float, 
+                      patch_width: float = None, stiffness: float = 5.0):
+    """Pops the image at index one. This is the reference image that all other
+    images will be referenced to. iterates over each image in the defined image
+    list applying the eefuncs.co_register function to each image.
+
+    Args:
+        images (List[ee.Image]): _description_
+        max_offset (float): _description_
+        patch_width (float, optional): _description_. Defaults to None.
+        stiffness (float, optional): _description_. Defaults to 5.0.
+    """
+    ref_image = images.pop(0)
+    imgs = [co_register(i, ref_image, max_offset, patch_width, stiffness) for 
+            i in images]
+    imgs.insert(0, ref_image)
+    return imgs
+
+
+    
