@@ -84,3 +84,14 @@ def batch_create_ndvi(images: List[ee.Image], nir: str = None, red: str = None) 
 def batch_create_savi(images: List[ee.Image], nir: str = None, red: str = None,
                       coef: float = 0.5) -> List[deriv.SAVI]:
     return [deriv.SAVI(image=img, NIR=nir, RED=red, coef=coef) for img in images]
+
+
+def batch_create_tassel_cap(images: List[ee.Image], blue: str = None, red: str = None,
+                            green: str = None, nir: str = None, swir_1: str = None,
+                            swir_2=None) -> List[deriv.TasselCap]:
+
+    bands = [deriv.TasselCap(image=img, blue=blue, red=red, green=green,
+                             nir=nir, swir_1=swir_1, swir_2=swir_2)
+             for img in images]
+
+    return bands
