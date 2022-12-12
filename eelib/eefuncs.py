@@ -2,7 +2,7 @@ from typing import List, Union
 
 import ee
 
-from eelib import sf
+from eelib import deriv, sf
 
 
 def co_register(this_image: ee.Image, ref_image: ee.Image, max_offset: float,
@@ -39,7 +39,7 @@ def despeckle(images: Union[ee.ImageCollection, ee.Image], filter: sf.Boxcar):
         return images.convolve(filter)
 
 
-def batch_co_register(images: List[ee.Image], max_offset: float, 
+def batch_co_register(images: List[ee.Image], max_offset: float,
                       patch_width: float = None, stiffness: float = 5.0):
     """Pops the image at index one. This is the reference image that all other
     images will be referenced to. iterates over each image in the defined image
@@ -52,10 +52,11 @@ def batch_co_register(images: List[ee.Image], max_offset: float,
         stiffness (float, optional): _description_. Defaults to 5.0.
     """
     ref_image = images.pop(0)
-    imgs = [co_register(i, ref_image, max_offset, patch_width, stiffness) for 
+    imgs = [co_register(i, ref_image, max_offset, patch_width, stiffness) for
             i in images]
     imgs.insert(0, ref_image)
     return imgs
+
 
 def batch_despeckle(images: List[ee.Image], filter: sf.Boxcar):
     """applys a spatial filter to each image in the image list. Only works on
@@ -68,6 +69,9 @@ def batch_despeckle(images: List[ee.Image], filter: sf.Boxcar):
 
     Returns:
         _type_: _description_
-    """    
+    """
     return [despeckle(i, filter) for i in images]
-    
+
+
+def batch_create_ratio(images: List[ee.Image], numerator: str, denominator: str) -> List[ee.Image]:
+    return [deriv.Ratio(img, numerator, denominator) for img in images]
