@@ -3,7 +3,6 @@ from pprint import pprint
 from typing import List, Union
 
 import ee
-import eefuncs
 
 
 class TrainingSample(ABC):
