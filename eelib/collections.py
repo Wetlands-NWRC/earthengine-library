@@ -17,7 +17,7 @@ class FeatureCollection(ee.FeatureCollection):
             filename=filename,
             driver=driver,
             layer=layer
-        )
+        ).to_crs(4326)
 
         return cls(gdf.__geo_interface__)
 
