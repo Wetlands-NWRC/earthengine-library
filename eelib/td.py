@@ -1,19 +1,16 @@
 from abc import ABC
-
 from pprint import pprint
-
 from typing import List, Union
 
 import ee
+import eefuncs
 
 
 class TrainingSample(ABC):
     pass
 
 
-
 class TrainingSamples(TrainingSample):
-
 
     def __init__(self, image: ee.Image, collection: ee.FeatureCollection,
                  properties: List[str] = None, scale: float = None,
@@ -31,14 +28,13 @@ class TrainingSamples(TrainingSample):
         self._tile_scale = tile_scale
         self._geometries = geometries
 
-        self._training_samples = None
-
-        self._cfg = {
-    def sample(self) -> None:
-        }
-
-    def __repr__(self) -> str:
-        return self._cfg
-
-    def generate_samples(self) -> ee.FeatureCollection:
-        self._training_samples = self._image.sampleRegions(**self._cfg)
+    def get_samples(self) -> ee.FeatureCollection:
+        samples = self._image.sampleRegions(**{
+            'collection': self._collection,
+            'scale': self._scale,
+            'tileScale': self._tile_scale,
+            'projection': self._projection,
+            'properties': self._properties,
+            'geometries': self._geometries
+        })
+        return samples
