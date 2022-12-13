@@ -18,10 +18,12 @@ class CloudTasks(ee.batch.Export):
         formatOptions = {
             'cloudOptimized': True} if formatOptions is None else formatOptions
 
-        valid_dimensions = any([i % shardSize == 0 for i in fileDimensions])
-        if not valid_dimensions:
-            raise ee.EEException(
-                f"File Dimensions are Not Valid: {shardSize}: {fileDimensions}")
+        if fileDimensions is not None:
+            valid_dimensions = any(
+                [i % shardSize == 0 for i in fileDimensions])
+            if not valid_dimensions:
+                raise ee.EEException(
+                    f"File Dimensions are Not Valid: {shardSize}: {fileDimensions}")
 
         task_config = {
             'image': image,
