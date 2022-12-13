@@ -63,7 +63,7 @@ class Stack(ee.Image):
     def channel_log(self) -> ee.FeatureCollection:
         """The channel_log property."""
         bandNames = self.bandNames()
-        index = ee.List.sequence(0, bandNames.subtract(1))
+        index = ee.List.sequence(0, bandNames.size().subtract(1))
 
         zipped = bandNames.zip(index)
 
@@ -76,6 +76,6 @@ class Stack(ee.Image):
             return ee.Feature(None, {'00_index': index,
                                      '01_Channel_index': channel_idx,
                                      '02_Channel_name': channel_name})
-        
+
         features = zipped.map(format)
-        return ee.FeatureCollection(features)        
+        return ee.FeatureCollection(features)
