@@ -66,7 +66,10 @@ class RandomForest:
         """Used to get the confusion matirx from a trained classifier. if the
         labels agrs is specifed will return a feature collection that has a
         features that are formatted to represent how you would view it in
-        tabular form. 
+        tabular form. When formatting matrix it will assume that there is a 
+        offset of one position. this assuemes that indexing of class values starts
+        at 1 not 0. This will assume that the first row of the array is emtpy, and
+        will be removed.
 
         Args:
             labels (ee.List, optional): List of Class Labels. Defaults to None.
@@ -78,7 +81,8 @@ class RandomForest:
             return None
         cfm = self._model.confusionMatrix()
         if labels is not None:
-            cfml = cfm.array().toList()
+            cfm = cfm.array().slice(1, 1).slice(0, 1)
+            cfml = cfm.toList()
 
             def format(element) -> ee.Feature:
                 clss = labels.get(cfml.indexOf(element))
