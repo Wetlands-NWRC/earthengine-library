@@ -83,7 +83,7 @@ class RandomForest:
             def format(element) -> ee.Feature:
                 clss = labels.get(cfml.indexOf(element))
                 col = ee.Dictionary.fromLists([' '], [clss])
-                row = ee.Dictionary.fromLists(cfml, element)
+                row = ee.Dictionary.fromLists(labels, element)
                 props = col.combine(row)
                 return ee.Feature(None, props)
             formatted = cfml.map(format)
