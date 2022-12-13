@@ -39,6 +39,16 @@ class CloudTasks(ee.batch.Export):
         return cls.image.toCloudStorage(**task_config)
 
     @classmethod
-    def table_task(cls):
-        task_config = {}
+    def table_task(cls, collection: ee.FeatureCollection, description: str = None,
+                   bucket: str = None, fileNamePrefix: str = None, fileFormat: str = None,
+                   selectors: List[str] = None):
+        fileFormat = 'CSV' if fileFormat is None else fileFormat
+        task_config = {
+            'collection': collection,
+            'description': description,
+            'bucket': bucket,
+            'fileNamePrefix': fileNamePrefix,
+            'fileFormat': fileFormat,
+            'selectors': selectors
+        }
         return cls.table.toCloudStorage(**task_config)
