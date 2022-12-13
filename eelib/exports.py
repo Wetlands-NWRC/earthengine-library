@@ -12,7 +12,7 @@ class CloudTasks(ee.batch.Export):
                    fileNamePrefix: str = None, region: ee.Geometry = None,
                    scale: int = None, crs: str = None, maxPixels: int = 1e13,
                    shardSize: int = 256, fileDimensions: List[int] = None,
-                   fileFormat: str = None, formatOptions: Dict[str, Any] = None):
+                   fileFormat: str = None, formatOptions: Dict[str, Any] = None) -> ee.batch.Task:
         crs = 'EPSG:4326' if crs is None else crs
         fileFormat = 'GeoTIFF' if fileFormat is None else fileFormat
         formatOptions = {
