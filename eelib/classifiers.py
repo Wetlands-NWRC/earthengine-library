@@ -1,4 +1,6 @@
-from typing import List
+from __future__ import annotations
+
+from typing import List, Union
 
 import ee
 
@@ -59,3 +61,33 @@ class RandomForest:
                 'inputProperties': predictors
             })
         return None
+
+    def confusion_matrix(self, labels: ee.List = None) -> Union[ee.ComputedObject, ee.FeatureCollection]:
+        """Used to get the confusion matirx from a trained classifier. if the
+        labels agrs is specifed will return a feature collection that has a
+        features that are formatted to represent how you would view it in
+        tabular form. 
+
+        Args:
+            labels (ee.List, optional): List of Class Labels. Defaults to None.
+
+        Returns:
+            Union[ee.ComputedObject, ee.FeatureCollection]: 
+        """
+        if self._model is None:
+            return None
+        cfm = self._model.confusionMatrix()
+        if labels is not None:
+            cfml = cfm.array().toList()
+
+            def format(element) -> ee.Feature:
+                clss = labels.get(cfml.indexOf(element))
+                col = ee.Dictionary.fromLists([' '], [clss])
+                row = ee.Dictionary.fromLists(cfml, element)
+                props = col.combine(row)
+                return ee.Feature(None, props)
+            formatted = cfml.map(format)
+            return ee.FeatureCollection(formatted)
+
+        else:
+            return cfm
