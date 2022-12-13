@@ -97,7 +97,7 @@ def batch_create_tassel_cap(images: List[ee.Image], blue: str = None, red: str =
     return bands
 
 
-def new_labels(training_data: ee.FeatureCollection, labelcol: str) -> Dict[str, Union[ee.FeatureCollection, ee.Dictionary]]:
+def new_labels(training_data: ee.FeatureCollection, labelcol: str, offset: int = None) -> Dict[str, Union[ee.FeatureCollection, ee.Dictionary]]:
     """Used to add integer values to training dataset, adds a new column to 
     feature collection called 'land_value'.
 
@@ -108,9 +108,12 @@ def new_labels(training_data: ee.FeatureCollection, labelcol: str) -> Dict[str, 
     Returns:
         Dict[str, Union[ee.FeatureCollection, ee.Dictionary]]: _description_
     """
-
     str_labels = training_data.aggregate_array(labelcol).distinct().sort()
-    int_labels = ee.List.sequence(0, str_labels.size().subtract(1))
+    size = str_labels.size()
+    start = 0 if offset is None else 0 + offset
+    end = size.subtract(1) if offset is None else size
+
+    int_labels = ee.List.sequence(start, end)
     lookup = ee.Dictionary.fromLists(str_labels, int_labels)
 
     def generate_label(element: ee.Feature):
