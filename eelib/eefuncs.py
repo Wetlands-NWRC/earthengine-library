@@ -123,3 +123,34 @@ def new_labels(training_data: ee.FeatureCollection, labelcol: str, offset: int =
 
     training_data = training_data.map(generate_label)
     return {'dataset': training_data, 'lookup': lookup}
+
+
+def add_geometry_prop(element: ee.Feature):
+    """adds geometry property to feature"""
+    return element.set('GEOJSONGEOM', element.geometry())
+
+
+def add_xy_property(feature: ee.Feature):
+    coords = feature.geometry().coordinates()
+    x = coords.get(0)
+    y = coords.get(1)
+    return feature.set({'POINT_X': x, 'POINT_Y': y})
+
+
+def restructure_point(element: ee.Feature):
+    geom = ee.Geometry.Point([element.get('POINT_X', 'POINT_Y')])
+    return element.setGeometry(geom)
+
+
+def from_geometry(featureCollection: ee.FeatureCollection):
+    """adds the geometry to feature from the .geometry property in the features 
+    property"""
+
+    props = list(featureCollection.first().getInfo().get('properties').keys())
+
+    def add_geometry(element: ee.Feature) -> ee.Feature:
+        props = {prop: element.get(prop) for prop in props}
+        geom = props.pop('GEOJSONGEOM')
+        return ee.Feature(geom, props)
+
+    return featureCollection.map(add_geometry)
