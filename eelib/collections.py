@@ -27,6 +27,12 @@ class FeatureCollection(ee.FeatureCollection):
     def from_image_collection(cls, image_collection: ee.ImageCollection):
         raise NotImplementedError
 
+    def to_file(self, filename: str, driver: str = None) -> None:
+        driver = 'ESRI Shapefile' if driver is None else driver
+        gdf = gpd.GeoDataFrame.from_features(self.getInfo().get('features'))
+        gdf.to_file(filename=filename, driver=driver)
+        return None
+
 
 class _eeImages(ee.ImageCollection):
     def __init__(self, args):
