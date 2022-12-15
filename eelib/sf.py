@@ -1,7 +1,13 @@
+from abc import ABC
+
 import ee
 
 
-class Boxcar:
+class SpatialFilter(ABC):
+    pass
+
+
+class Boxcar(SpatialFilter):
 
     def __new__(cls, radius: float, units: str = None, normalize: bool = True,
                 magnitude: float = 1.0):

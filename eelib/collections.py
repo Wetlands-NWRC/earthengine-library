@@ -1,3 +1,5 @@
+from typing import List, Union
+
 import ee
 import geopandas as gpd
 
@@ -17,7 +19,7 @@ class FeatureCollection(ee.FeatureCollection):
             filename=filename,
             driver=driver,
             layer=layer
-        )
+        ).to_crs(4326)
 
         return cls(gdf.__geo_interface__)
 
@@ -52,10 +54,28 @@ class S2SRCollection:
         return _eeImages(cls.__COLLECTION_ID)
 
 
-class Stack:
-    def __new__(cls, *images) -> ee.Image:
-        """Constructs a New Image. Stacks all images together
-        Returns:
-            ee.Image: an Image that Represents a Stack of images
-        """
-        return ee.Image.cat(images)
+class Stack(ee.Image):
+    def __init__(self, images: List[Union[ee.Image, str]]):
+        super().__init__(images)
+        self._channel_log = None
+
+    @property
+    def channel_log(self) -> ee.FeatureCollection:
+        """The channel_log property."""
+        bandNames = self.bandNames()
+        index = ee.List.sequence(0, bandNames.size().subtract(1))
+
+        zipped = bandNames.zip(index)
+
+        def format(element) -> ee.Feature:
+            obj = ee.List(element)
+            channel_name = ee.String(obj.get(0))
+            index = ee.Number(obj.get(1))
+            channel_idx = ee.String('Channel: ').cat(index.add(1).
+                                                     format('%02d'))
+            return ee.Feature(None, {'00_index': index,
+                                     '01_Channel_index': channel_idx,
+                                     '02_Channel_name': channel_name})
+
+        features = zipped.map(format)
+        return ee.FeatureCollection(features)

@@ -1,4 +1,4 @@
-from typing import List, Union
+from typing import Dict, List, Union
 
 import ee
 
@@ -95,3 +95,62 @@ def batch_create_tassel_cap(images: List[ee.Image], blue: str = None, red: str =
              for img in images]
 
     return bands
+
+
+def new_labels(training_data: ee.FeatureCollection, labelcol: str, offset: int = None) -> Dict[str, Union[ee.FeatureCollection, ee.Dictionary]]:
+    """Used to add integer values to training dataset, adds a new column to 
+    feature collection called 'land_value'.
+
+    Args:
+        training_data (ee.FeatureCollection): _description_
+        labelcol (str): _description_
+
+    Returns:
+        Dict[str, Union[ee.FeatureCollection, ee.Dictionary]]: _description_
+    """
+    str_labels = training_data.aggregate_array(labelcol).distinct().sort()
+    size = str_labels.size()
+    start = 0 if offset is None else 0 + offset
+    end = size.subtract(1) if offset is None else size
+
+    int_labels = ee.List.sequence(start, end)
+    lookup = ee.Dictionary.fromLists(str_labels, int_labels)
+
+    def generate_label(element: ee.Feature):
+        land_cover = element.get(labelcol)
+        label = lookup.get(land_cover)
+        return element.set('land_value', label)
+
+    training_data = training_data.map(generate_label)
+    return {'dataset': training_data, 'lookup': lookup}
+
+
+def add_geometry_prop(element: ee.Feature):
+    """adds geometry property to feature"""
+    return element.set('GEOJSONGEOM', element.geometry())
+
+
+def add_xy_property(feature: ee.Feature):
+    coords = feature.geometry().coordinates()
+    x = coords.get(0)
+    y = coords.get(1)
+    return feature.set({'POINT_X': x, 'POINT_Y': y})
+
+
+def restructure_point(element: ee.Feature):
+    geom = ee.Geometry.Point([element.get('POINT_X', 'POINT_Y')])
+    return element.setGeometry(geom)
+
+
+def from_geometry(featureCollection: ee.FeatureCollection):
+    """adds the geometry to feature from the .geometry property in the features 
+    property"""
+
+    props = list(featureCollection.first().getInfo().get('properties').keys())
+
+    def add_geometry(element: ee.Feature) -> ee.Feature:
+        props = {prop: element.get(prop) for prop in props}
+        geom = props.pop('GEOJSONGEOM')
+        return ee.Feature(geom, props)
+
+    return featureCollection.map(add_geometry)
