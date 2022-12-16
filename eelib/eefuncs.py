@@ -154,3 +154,11 @@ def from_geometry(featureCollection: ee.FeatureCollection):
         return ee.Feature(geom, props)
 
     return featureCollection.map(add_geometry)
+
+
+def insert_groupid(element: ee.Image):
+    """ Inserts a new prop called groupid this is only valid for Sentinel - 1 
+    images"""
+    rel_orbit = element.get('relativeOrbitNumber_start')
+    x = element.geometry().centroid().coordinates().get(0)
+    return element.set('groupid', ee.String(rel_orbit).cat("_").cat(x))
