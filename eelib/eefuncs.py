@@ -162,3 +162,20 @@ def insert_groupid(element: ee.Image):
     rel_orbit = element.get('relativeOrbitNumber_start')
     x = element.geometry().centroid().coordinates().get(0)
     return element.set('groupid', ee.String(rel_orbit).cat("_").cat(x))
+
+
+def get_mid_point(dateRange: tuple[ee.Date]) -> ee.Date:
+    """ date range is assumed to be a tuple of ee.Date objects that represent
+    a start date and an end date. It will find the mid point between the two dates
+    and add that as a property to each image in the image Collection. this assumes
+    that each image in the collection has a datetime property associated with it.
+    """
+    start, stop = dateRange
+    mapping = {'start': start.millis(), 'stop': stop.millis()}
+    equation = ee.Number.expression('start + (stop - start) / 2', mapping)
+
+    return ee.Date(equation)
+
+
+def differenceMid(element: ee.Image):
+    pass
