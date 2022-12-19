@@ -177,5 +177,18 @@ def get_mid_point(dateRange: tuple[ee.Date]) -> ee.Date:
     return ee.Date(equation)
 
 
-def differenceMid(element: ee.Image):
-    pass
+def days_from_mid(collection: ee.ImageCollection, midPoint: ee.Date, units: str = None):
+    """ adds prop called dfm. the property reperesent the number of days that the 
+    image is from the defined mid point
+
+    the start and end dates of the input collection must intersect the midPoint 
+    arg in order for this to work properly
+    """
+
+    units = 'days' if units is None else units
+
+    def dfm_calc(element: ee.Image):
+        dif = element.date().difference(midPoint, units).abs().floor()
+        return element.set('dfm', ee.Number(dif))
+
+    return collection.map(dfm_calc)
