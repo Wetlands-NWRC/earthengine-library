@@ -162,7 +162,7 @@ def insert_groupid(element: ee.Image):
     rel_orbit = ee.Number(element.get(
         'relativeOrbitNumber_start')).format("%d")
     x = ee.Number(element.geometry().centroid(
-    ).coordinates().get(0)).format('%d')
+    ).coordinates().get(0)).format('%.2f')
     return element.set('groupid', ee.String(rel_orbit).cat("_").cat(x))
 
 
