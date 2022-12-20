@@ -154,3 +154,43 @@ def from_geometry(featureCollection: ee.FeatureCollection):
         return ee.Feature(geom, props)
 
     return featureCollection.map(add_geometry)
+
+
+def insert_groupid(element: ee.Image):
+    """ Inserts a new prop called groupid this is only valid for Sentinel - 1 
+    images"""
+    rel_orbit = ee.Number(element.get(
+        'relativeOrbitNumber_start')).format("%d")
+    x = ee.Number(element.geometry().centroid(
+    ).coordinates().get(0)).format('%.2f')
+    return element.set('groupid', ee.String(rel_orbit).cat("_").cat(x))
+
+
+def get_mid_point(dateRange: tuple[ee.Date]) -> ee.Date:
+    """ date range is assumed to be a tuple of ee.Date objects that represent
+    a start date and an end date. It will find the mid point between the two dates
+    and add that as a property to each image in the image Collection. this assumes
+    that each image in the collection has a datetime property associated with it.
+    """
+    start, stop = dateRange
+    mapping = {'start': start.millis(), 'stop': stop.millis()}
+    equation = ee.Number.expression('start + (stop - start) / 2', mapping)
+
+    return ee.Date(equation)
+
+
+def days_from_mid(collection: ee.ImageCollection, midPoint: ee.Date, units: str = None):
+    """ adds prop called dfm. the property reperesent the number of days that the 
+    image is from the defined mid point
+
+    the start and end dates of the input collection must intersect the midPoint 
+    arg in order for this to work properly
+    """
+
+    units = 'days' if units is None else units
+
+    def dfm_calc(element: ee.Image):
+        dif = element.date().difference(midPoint, units).abs().floor()
+        return element.set('dfm', ee.Number(dif))
+
+    return collection.map(dfm_calc)
