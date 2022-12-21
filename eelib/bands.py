@@ -60,10 +60,10 @@ class WillistonCBA(Enum):
     B8 = 'a_spri_b08a_20m'
     B9 = 'a_spri_b11_20m'
     B10 = 'a_spri_b12_20m'
-    B11 = 'a_spri_doy_y1',
+    B11 = 'a_spri_doy_y1'
     B12 = 'a_spri_doy_y2'
-    B13 = 'a_spri_imgyear_y1',
-    B14 = 'a_spri_imgyear_y2',
+    B13 = 'a_spri_imgyear_y1'
+    B14 = 'a_spri_imgyear_y2'
     B15 = 'a_spri_weight_y2'
     B16 = 'a_spri_weight_y2_base'
     B17 = 'a_spri_weight_y2_swiradj'
