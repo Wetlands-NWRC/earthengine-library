@@ -194,3 +194,33 @@ def days_from_mid(collection: ee.ImageCollection, midPoint: ee.Date, units: str 
         return element.set('dfm', ee.Number(dif))
 
     return collection.map(dfm_calc)
+
+
+def moa_calc(samples: ee.FeatureCollection, predictors: ee.List,
+             label_col: str, c1: str, c2: str) -> ee.List:
+
+    c1q = f'{label_col} == "{c1}"'
+    c2q = f'{label_col} == "{c2}"'
+    query_str = f'{c1q} || {c2q} == "{c2}"'
+
+    def calc_inner(element):
+        inputCol = samples.filter(query_str)
+
+        std = inputCol.aggregate_total_sd(element)
+
+        c1p1 = inputCol.filter(c1q)
+        c2p1 = inputCol.filter(c2q)
+
+        m1 = c1p1.aggregate_mean(element)
+        m2 = c2p1.aggregate_mean(element)
+
+        calc = ee.Number.expression('abs((m2 - m1) / std)', {
+            "m1": m1,
+            "m2": m2,
+            "std": std
+        })
+
+        return calc
+    values = predictors.map(calc_inner)
+    zipped = predictors.zip(values)
+    return zipped
