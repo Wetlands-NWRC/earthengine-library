@@ -1,11 +1,12 @@
 from itertools import combinations
 
 import ee
+import pandas as pd
 
 from . import eefuncs
 
 
-def moa(image: ee.Image, label_col: str, pts: ee.FeatureCollection) -> ee.FeatureCollection:
+def eemoa(image: ee.Image, label_col: str, pts: ee.FeatureCollection) -> ee.FeatureCollection:
 
     def moaFeatures(list: ee.List, c1, c2):
         list = ee.List(list)
@@ -20,7 +21,7 @@ def moa(image: ee.Image, label_col: str, pts: ee.FeatureCollection) -> ee.Featur
         return list.map(moaFeature)
 
     def moaRanks(fc) -> ee.Dictionary:
-        bands = fc.aggregate_array('02_Bands')
+        bands = fc.aggregate_array('02_Band')
         ranks = ee.List.sequence(1, bands.size())
         return ee.Dictionary.fromLists(bands, ranks)
 
