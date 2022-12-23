@@ -1,3 +1,5 @@
+from pprint import pprint
+
 import ee
 
 from eelib.scripttools import moa
@@ -15,7 +17,7 @@ def test_moa_table_export():
         label_col=label_column,
         pts=pts
     )
-
+    pprint(moaScores.first().getInfo())
     task = ee.batch.Export.table.toDrive(
         collection=moaScores,
         description='moa_script_tool_test',
