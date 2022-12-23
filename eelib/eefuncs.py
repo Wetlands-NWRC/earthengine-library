@@ -201,7 +201,7 @@ def moa_calc(samples: ee.FeatureCollection, predictors: ee.List,
 
     c1q = f'{label_col} == "{c1}"'
     c2q = f'{label_col} == "{c2}"'
-    query_str = f'{c1q} || {c2q} == "{c2}"'
+    query_str = f'{c1q} || {c2q}'
 
     def calc_inner(element):
         inputCol = samples.filter(query_str)
