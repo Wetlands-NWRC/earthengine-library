@@ -1,18 +1,21 @@
 from itertools import combinations
 
 import ee
-import eefuncs
+
+from . import eefuncs
 
 
 def moa(image: ee.Image, label_col: str, pts: ee.FeatureCollection) -> ee.FeatureCollection:
 
     def moaFeatures(list: ee.List, c1, c2):
+        list = ee.List(list)
+        vs_classes = f'{c1}:{c2}'
+
         def moaFeature(element):
             nest = ee.List(element)
             band = nest.get(0)
             value = nest.get(1)
-            classes = f'{c1}:{c2}'
-            return ee.Feature(None, {'00_Classes': classes,
+            return ee.Feature(None, {'00_Classes': vs_classes,
                                      '02_Band': band, '03_Value': value})
         return list.map(moaFeature)
 
@@ -28,7 +31,7 @@ def moa(image: ee.Image, label_col: str, pts: ee.FeatureCollection) -> ee.Featur
             return element.set('01_Rank', rank)
         return fc.map(inner_func)
 
-    samples = image.SampleRegions({
+    samples = image.sampleRegions(**{
         'collection': pts,
         'tileScale': 16,
         'scale': 10,
@@ -41,14 +44,15 @@ def moa(image: ee.Image, label_col: str, pts: ee.FeatureCollection) -> ee.Featur
 
     collections = []
     for comb in combs:
+        c1, c2 = comb
         moa_values = eefuncs.moa_calc(
             samples=samples,
             predictors=predicts,
             label_col=label_col,
-            c1=comb[0],
-            c2=comb[1]
+            c1=c1,
+            c2=c2
         )
-        features = moa_values.map(moaFeatures)
+        features = moaFeatures(moa_values, c1, c2)
         moaFc = ee.FeatureCollection(features)
         moaSort = moaFc.sort("03_Value", False)
         rankLkup = moaRanks(moaSort)
