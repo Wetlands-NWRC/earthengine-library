@@ -27,7 +27,8 @@ def from_image_collection(cls, image_collection: ee.ImageCollection):
 
 def to_file(self, filename: str, driver: str = None) -> None:
     driver = 'ESRI Shapefile' if driver is None else driver
-    gdf = gpd.GeoDataFrame.from_features(self.getInfo().get('features'))
+    gdf = gpd.GeoDataFrame.from_features(self.getInfo().get('features')).\
+        set_crs(4326)
     gdf.to_file(filename=filename, driver=driver)
     return None
 
