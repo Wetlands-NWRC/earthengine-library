@@ -1,54 +1,44 @@
-from abc import ABC
-from typing import List, Union
+from dataclasses import dataclass, field
+from typing import List
 
 import ee
 
 
-# @TODO convert to dataclass
+@dataclass
 class TrainingData:
-    def __init__(self, collection: ee.FeatureCollection) -> None:
-        self.collection = collection
-        self._label_col = 'land_cover'
+    collection: ee.FeatureCollection
+    samples: ee.FeatureCollection
+    class_labels: str = field(init=True, repr=True, default='land_cover')
+    class_values: str = field(init=True, repr=True,
+                              default='land_cover_values')
+    _samples: ee.FeatureCollection = field(
+        init=False, repr=False, default=None)
 
     @property
-    def class_labels(self):
-        """The class_labels property."""
-        return self._class_labels
+    def samples(self):
+        """The samples property."""
+        return self._samples
 
-    @class_labels.setter
-    def class_labels(self, value):
-        self._class_labels = value
-
-
-class TrainingSample(ABC):
-    pass
+    @samples.setter
+    def samples(self, value):
+        if type(value) is property:
+            value = TrainingData._samples
+        self._samples = value
 
 
-class TrainingSamples(TrainingSample):
+def training_samples(image: ee.Image, training_data: TrainingData,
+                     properties: List[str] = None, scale: float = None,
+                     tile_scale: float = 1.0, geometries: bool = False):
+    test_geometry_type = training_data.collection.geometry().type().getInfo()
+    if test_geometry_type != 'MultiPoint':
+        raise ee.EEException("Collection is not of type MultiPoint")
 
-    def __init__(self, image: ee.Image, training_data: TrainingData,
-                 properties: List[str] = None, scale: float = None,
-                 projection: ee.Projection = None, tile_scale: float = 1,
-                 geometries: bool = False):
-        test_geometry_type = training_data.collection.geometry().type().getInfo()
-        if test_geometry_type != 'MultiPoint':
-            raise ee.EEException("Collection is not of type MultiPoint")
-
-        self._image = image
-        self._collection = training_data.collection
-        self._properties = properties
-        self._scale = scale
-        self._projection = projection
-        self._tile_scale = tile_scale
-        self._geometries = geometries
-
-    def get_samples(self) -> ee.FeatureCollection:
-        samples = self._image.sampleRegions(**{
-            'collection': self._collection,
-            'scale': self._scale,
-            'tileScale': self._tile_scale,
-            'projection': self._projection,
-            'properties': self._properties,
-            'geometries': self._geometries
-        })
-        return samples
+    samples = image.sampleRegions(**{
+        'collection': training_data.collection,
+        'scale': scale,
+        'tileScale': tile_scale,
+        'properties': properties,
+        'geometries': geometries
+    })
+    training_data.samples = samples
+    return training_data
