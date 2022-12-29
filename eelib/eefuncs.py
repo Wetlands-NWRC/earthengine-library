@@ -110,7 +110,7 @@ def new_labels(training_data: Union[ee.FeatureCollection, td.TrainingData],
         Dict[str, Union[ee.FeatureCollection, ee.Dictionary]]: _description_
     """
     def relabel(dataset: ee.FeatureCollection, index: str):
-        str_labels = training_data.aggregate_array(index).distinct().sort()
+        str_labels = dataset.aggregate_array(index).distinct().sort()
         size = str_labels.size()
         start = 0 if offset is None else 0 + offset
         end = size.subtract(1) if offset is None else size
