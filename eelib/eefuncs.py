@@ -109,32 +109,21 @@ def new_labels(training_data: Union[ee.FeatureCollection, td.TrainingData],
     Returns:
         Dict[str, Union[ee.FeatureCollection, ee.Dictionary]]: _description_
     """
-    def relabel(dataset: ee.FeatureCollection, index: str):
-        str_labels = dataset.aggregate_array(index).distinct().sort()
-        size = str_labels.size()
-        start = 0 if offset is None else 0 + offset
-        end = size.subtract(1) if offset is None else size
+    str_labels = training_data.aggregate_array(labelcol).distinct().sort()
+    size = str_labels.size()
+    start = 0 if offset is None else 0 + offset
+    end = size.subtract(1) if offset is None else size
 
-        int_labels = ee.List.sequence(start, end)
-        lookup = ee.Dictionary.fromLists(str_labels, int_labels)
+    int_labels = ee.List.sequence(start, end)
+    lookup = ee.Dictionary.fromLists(str_labels, int_labels)
 
-        def generate_label(element: ee.Feature):
-            land_cover = element.get(index)
-            label = lookup.get(land_cover)
-            return element.set('land_value', label)
+    def generate_label(element: ee.Feature):
+        land_cover = element.get(labelcol)
+        label = lookup.get(land_cover)
+        return element.set('land_value', label)
 
-        return dataset.map(generate_label)
-
-    if not isinstance(training_data, ee.FeatureCollection):
-        training = training_data
-        dataset = training_data.collection
-        index = training_data.class_labels
-        output = relabel(dataset, index)
-        training.collection = output
-
-    else:
-        training = relabel(training_data, labelcol)
-    return training
+    training_data = training_data.map(generate_label)
+    return {'dataset': training_data, 'lookup': lookup}
 
 
 def add_geometry_prop(element: ee.Feature):
