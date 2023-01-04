@@ -52,10 +52,10 @@ def batch_co_register(images: List[ee.Image], max_offset: float,
         stiffness (float, optional): _description_. Defaults to 5.0.
     """
     ref_image = images.pop(0)
-    imgs = [co_register(i, ref_image, max_offset, patch_width, stiffness) for
-            i in images]
-    imgs.insert(0, ref_image)
-    return imgs
+    images = [co_register(i, ref_image, max_offset, patch_width, stiffness) for
+              i in images]
+    images.insert(0, ref_image)
+    return images
 
 
 def batch_despeckle(images: List[ee.Image], filter: sf.Boxcar):
