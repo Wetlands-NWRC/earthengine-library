@@ -1,5 +1,7 @@
+import os
+
 from itertools import combinations
-from typing import Dict, Any
+from typing import Dict, Any, Union, List
 
 import ee
 import matplotlib.pyplot as plt
@@ -65,19 +67,49 @@ def eemoa(image: ee.Image, label_col: str, pts: ee.FeatureCollection) -> ee.Feat
     return ee.FeatureCollection(collections).flatten()
 
 
-def extract_by_rank(moa_table: pd.DataFrame,
-                    samples_table: pd.DataFrame) -> Dict[str, pd.Series]:
+def extract_by_rank(moa_table: pd.DataFrame, rank: int = 1) -> Dict[str, pd.Series]:
     df = moa_table[moa_table['01_Rank'] == 1]
     bands = df['02_Band'].unique().tolist()
-    return {band: df['02_Band'] for band in bands}
-    
+    return bands
 
-def plot_moa_dis(scores_table: ee.FeatureCollection,
-                 samples: ee.FeatureCollection, rank: int) -> Any:
+def plot_moa_dis(predictors: List[Any], sample_table: pd.DataFrame, 
+                 dir: str = None) -> None:
     
+    dir = './plotting' if dir is None else dir
     
-    
-    
-    
+    def hist_factory(series: pd.Series, title: str, bin: Union[str, int] = None):
+        bin = 'auto' if bin is None else bin
+        
+        n, bins, patches = plt.hist(series, bin, rwidth=0.85)
+
+        plt.xlabel('Value')
+        plt.ylabel('Frequency')
+        plt.title(title)
+
+        # plt.xlim(-1, 1)
+        # plt.ylim(0, 700)
+        maxfreq = n.max()
+        plt.ylim(ymax=np.ceil(maxfreq / 100) * 100 if maxfreq % 100 
+                 else maxfreq + 100)
+        
+        plt.grid(True)
+        return n, bins, patches
+
+    for band in predictors:
+        series = sample_table[band]
+        
+        hist_factory(
+            series=series,
+            title=band,
+            bin=100
+        )
+        if not os.path.exists(dir):
+            os.makedirs(dir)
+
+        plotname = os.path.join(dir, f'{band}.png')
+        
+        plt.savefig(plotname)
+        plt.close()
+    return None
     # Step 3: select the collection based on do lazy loading
 
