@@ -1,6 +1,9 @@
 from itertools import combinations
+from typing import Dict, Any
 
 import ee
+import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 
 from . import eefuncs
@@ -60,3 +63,21 @@ def eemoa(image: ee.Image, label_col: str, pts: ee.FeatureCollection) -> ee.Feat
         moaRanked = instertRanks(moaSort, rankLkup)
         collections.append(moaRanked)
     return ee.FeatureCollection(collections).flatten()
+
+
+def extract_by_rank(moa_table: pd.DataFrame,
+                    samples_table: pd.DataFrame) -> Dict[str, pd.Series]:
+    df = moa_table[moa_table['01_Rank'] == 1]
+    bands = df['02_Band'].unique().tolist()
+    return {band: df['02_Band'] for band in bands}
+    
+
+def plot_moa_dis(scores_table: ee.FeatureCollection,
+                 samples: ee.FeatureCollection, rank: int) -> Any:
+    
+    
+    
+    
+    
+    # Step 3: select the collection based on do lazy loading
+
