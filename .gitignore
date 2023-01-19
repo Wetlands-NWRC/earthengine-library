@@ -280,3 +280,4 @@ cython_debug/
 >>>>>>> 1433848c1c5610a711d86668c011dcd8bd19fe02
 testing_data/
 *.png
+scratch/
