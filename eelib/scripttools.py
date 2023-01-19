@@ -80,7 +80,8 @@ class MoaTable(pd.DataFrame):
         # group dataframe by land cover
         land_covers = {land_cover: dfin[(dfin[label] == land_cover)] for land_cover in labels}
         
-        column = [i for i in dfin.columns if i not in ['.geo', 'system:index', 'CID', label]]
+        column = [i for i in dfin.columns if i not in ['.geo', 'system:index', 'CID', label,
+                                                       'land_value', 'id', 'geometry']]
         
         dfs = []
         for comb in label_combs:
