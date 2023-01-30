@@ -2,7 +2,7 @@ from typing import Dict, List, Union
 
 import ee
 
-from eelib import deriv, sf
+from eelib import deriv, sf, td
 
 
 def co_register(this_image: ee.Image, ref_image: ee.Image, max_offset: float,
@@ -52,10 +52,10 @@ def batch_co_register(images: List[ee.Image], max_offset: float,
         stiffness (float, optional): _description_. Defaults to 5.0.
     """
     ref_image = images.pop(0)
-    imgs = [co_register(i, ref_image, max_offset, patch_width, stiffness) for
-            i in images]
-    imgs.insert(0, ref_image)
-    return imgs
+    images = [co_register(i, ref_image, max_offset, patch_width, stiffness) for
+              i in images]
+    images.insert(0, ref_image)
+    return images
 
 
 def batch_despeckle(images: List[ee.Image], filter: sf.Boxcar):
@@ -97,7 +97,8 @@ def batch_create_tassel_cap(images: List[ee.Image], blue: str = None, red: str =
     return bands
 
 
-def new_labels(training_data: ee.FeatureCollection, labelcol: str, offset: int = None) -> Dict[str, Union[ee.FeatureCollection, ee.Dictionary]]:
+def new_labels(training_data: Union[ee.FeatureCollection, td.TrainingData],
+               labelcol: str = None, offset: int = None) -> Dict[str, Union[ee.FeatureCollection, ee.Dictionary]]:
     """Used to add integer values to training dataset, adds a new column to 
     feature collection called 'land_value'.
 
@@ -194,3 +195,33 @@ def days_from_mid(collection: ee.ImageCollection, midPoint: ee.Date, units: str 
         return element.set('dfm', ee.Number(dif))
 
     return collection.map(dfm_calc)
+
+
+def moa_calc(samples: ee.FeatureCollection, predictors: ee.List,
+             label_col: str, c1: str, c2: str) -> ee.List:
+
+    c1q = f'{label_col} == "{c1}"'
+    c2q = f'{label_col} == "{c2}"'
+    query_str = f'{c1q} || {c2q}'
+
+    def calc_inner(element):
+        inputCol = samples.filter(query_str)
+
+        std = inputCol.aggregate_total_sd(element)
+
+        c1p1 = inputCol.filter(c1q)
+        c2p1 = inputCol.filter(c2q)
+
+        m1 = c1p1.aggregate_mean(element)
+        m2 = c2p1.aggregate_mean(element)
+
+        calc = ee.Number.expression('abs((m2 - m1) / std)', {
+            "m1": m1,
+            "m2": m2,
+            "std": std
+        })
+
+        return calc
+    values = predictors.map(calc_inner)
+    zipped = predictors.zip(values)
+    return zipped
