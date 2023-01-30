@@ -1,39 +1,30 @@
-from abc import ABC
-from pprint import pprint
-from typing import List, Union
+from dataclasses import dataclass, field
+from typing import List
 
 import ee
 
 
-class TrainingSample(ABC):
-    pass
+@dataclass
+class TrainingData:
+    collection: ee.FeatureCollection
+    samples: ee.FeatureCollection = field(init=False, repr=False, default=None)
+    class_labels: str = field(init=True, repr=True, default='land_cover')
+    class_values: str = field(init=True, repr=True, default='land_value')
 
 
-class TrainingSamples(TrainingSample):
+def training_samples(image: ee.Image, training_data: TrainingData,
+                     properties: List[str] = None, scale: float = None,
+                     tile_scale: float = 1.0, geometries: bool = False):
+    test_geometry_type = training_data.collection.geometry().type().getInfo()
+    if test_geometry_type != 'MultiPoint':
+        raise ee.EEException("Collection is not of type MultiPoint")
 
-    def __init__(self, image: ee.Image, collection: ee.FeatureCollection,
-                 properties: List[str] = None, scale: float = None,
-                 projection: ee.Projection = None, tile_scale: float = 1,
-                 geometries: bool = False):
-        test_geometry_type = collection.geometry().type().getInfo()
-        if test_geometry_type != 'MultiPoint':
-            raise ee.EEException("Collection is not of type MultiPoint")
-
-        self._image = image
-        self._collection = collection
-        self._properties = properties
-        self._scale = scale
-        self._projection = projection
-        self._tile_scale = tile_scale
-        self._geometries = geometries
-
-    def get_samples(self) -> ee.FeatureCollection:
-        samples = self._image.sampleRegions(**{
-            'collection': self._collection,
-            'scale': self._scale,
-            'tileScale': self._tile_scale,
-            'projection': self._projection,
-            'properties': self._properties,
-            'geometries': self._geometries
-        })
-        return samples
+    samples = image.sampleRegions(**{
+        'collection': training_data.collection,
+        'scale': scale,
+        'tileScale': tile_scale,
+        'properties': properties,
+        'geometries': geometries
+    })
+    training_data.samples = samples
+    return training_data
